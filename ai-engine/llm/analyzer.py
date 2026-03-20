@@ -1,13 +1,14 @@
 import os
 import json
 import logging
+import asyncio
 from typing import List, Dict, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 
-LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'anthropic')
-LLM_MODEL = os.environ.get('LLM_MODEL', 'claude-sonnet-4-20250514')
+LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'gemini')
+LLM_MODEL = os.environ.get('LLM_MODEL', 'gemini-1.5-flash')
 
 
 class BugAnalyzer:
@@ -15,12 +16,19 @@ class BugAnalyzer:
         self.client = self._init_client()
 
     def _init_client(self):
-        if LLM_PROVIDER == 'anthropic':
-            import anthropic
-            return anthropic.AsyncAnthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
+        if LLM_PROVIDER == 'gemini':
+            import google.generativeai as genai
+            genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
+            return genai
         elif LLM_PROVIDER == 'openai':
             from openai import AsyncOpenAI
-            return AsyncOpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+            return AsyncOpenAI(
+                api_key=os.environ.get('OPENAI_API_KEY'),
+                base_url=os.environ.get('OPENAI_BASE_URL') 
+            )
+        elif LLM_PROVIDER == 'anthropic':
+            import anthropic
+            return anthropic.AsyncAnthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
         else:
             raise ValueError(f"Unsupported LLM provider: {LLM_PROVIDER}")
 
@@ -30,12 +38,32 @@ class BugAnalyzer:
         context = self._build_context(code_chunks)
         prompt = self._build_prompt(error_message, stack_trace, logs, context)
 
-        if LLM_PROVIDER == 'anthropic':
+        if LLM_PROVIDER == 'gemini':
+            try:
+                raw = await asyncio.get_event_loop().run_in_executor(
+                    None, self._call_gemini, prompt
+                )
+                if not raw:
+                    raise ValueError("Empty response from Gemini")
+                return self._parse_response(raw)
+            except Exception as e:
+                logger.error(f"Gemini failed: {str(e)}")
+                return {
+                    "analysis": {
+                        "rootCause": "LLM request failed",
+                        "explanation": str(e),
+                        "suggestedFix": "Check API quota or try again later",
+                        "affectedFiles": [],
+                        "confidence": 0.1
+                    },
+                    "patch": None
+                }
+
+        elif LLM_PROVIDER == 'anthropic':
             response = await self.client.messages.create(
                 model=LLM_MODEL,
                 max_tokens=4096,
-                system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": f"{SYSTEM_PROMPT}\n\n{prompt}"}]
             )
             raw = response.content[0].text
         else:
@@ -51,73 +79,79 @@ class BugAnalyzer:
 
         return self._parse_response(raw)
 
+    def _call_gemini(self, prompt: str) -> str:
+        import google.generativeai as genai
+        model = genai.GenerativeModel(
+            model_name=LLM_MODEL,
+            system_instruction=SYSTEM_PROMPT
+        )
+        response = model.generate_content(
+            prompt,
+            generation_config=genai.GenerationConfig(
+                temperature=0.2,
+                max_output_tokens=1500,
+            )
+        )
+        return response.text if hasattr(response, 'text') else ""
+
     def _build_context(self, chunks: List[Dict]) -> str:
         parts = []
-        for c in chunks:
+        for c in chunks[:3]:  # limit to 3 chunks to save tokens
+            content = c['content'][:500]  # limit content length
             parts.append(
-                f"### File: `{c['filePath']}` (lines {c['startLine']}-{c['endLine']}, score: {c['score']})\n"
-                f"```{c['language']}\n{c['content']}\n```"
+                f"### File: `{c['filePath']}` (lines {c['startLine']}-{c['endLine']})\n"
+                f"```{c['language']}\n{content}\n```"
             )
         return '\n\n'.join(parts)
 
     def _build_prompt(self, error_message, stack_trace, logs, context) -> str:
-        return f"""Analyze the following bug using the provided code context.
+        return f"""Analyze this bug and respond ONLY with valid JSON.
 
-## Error Message
-```
-{error_message}
-```
+Error: {error_message}
 
-## Stack Trace
-```
-{stack_trace or 'Not provided'}
-```
+Stack Trace: {(stack_trace or 'Not provided')[:300]}
 
-## Logs
-```
-{logs or 'Not provided'}
-```
-
-## Relevant Code (retrieved via semantic search)
+Relevant Code:
 {context}
 
-Respond ONLY with a valid JSON object in this exact format:
+Respond ONLY with this JSON format:
 {{
   "analysis": {{
-    "rootCause": "One clear sentence describing the root cause",
-    "explanation": "Detailed explanation of why the bug occurs and how it manifests",
-    "suggestedFix": "Clear description of what needs to be changed and why",
-    "affectedFiles": ["list", "of", "file", "paths"],
+    "rootCause": "One sentence root cause",
+    "explanation": "Brief explanation",
+    "suggestedFix": "What to fix",
+    "affectedFiles": ["file/path"],
     "confidence": 0.85
   }},
-  "patch": "A valid unified diff git patch that fixes the bug. Must start with 'diff --git'. If you cannot generate a patch, use null."
+  "patch": null
 }}"""
 
     def _parse_response(self, raw: str) -> Dict:
-        # Strip markdown code fences if present
         raw = raw.strip()
         if raw.startswith('```'):
             raw = raw.split('\n', 1)[1]
             if raw.endswith('```'):
                 raw = raw.rsplit('```', 1)[0]
-
         try:
             return json.loads(raw)
         except json.JSONDecodeError:
-            # Fallback: extract JSON from prose
             import re
             match = re.search(r'\{[\s\S]*\}', raw)
             if match:
-                return json.loads(match.group())
-            raise ValueError(f"Could not parse LLM response as JSON: {raw[:200]}")
+                try:
+                    return json.loads(match.group())
+                except:
+                    pass
+            return {
+                "analysis": {
+                    "rootCause": "Could not parse AI response",
+                    "explanation": raw[:500],
+                    "suggestedFix": "Try again",
+                    "affectedFiles": [],
+                    "confidence": 0.1
+                },
+                "patch": None
+            }
 
 
-SYSTEM_PROMPT = """You are an expert software debugger and code analyst. Your role is to:
-1. Analyze bugs from error messages, stack traces, and relevant source code
-2. Identify the precise root cause with high accuracy
-3. Generate a working git patch (unified diff format) that fixes the issue
-4. Be concise, accurate, and actionable
-
-Always respond with valid JSON only. No prose before or after the JSON object.
-When generating patches, ensure they are syntactically valid unified diff format.
-"""
+SYSTEM_PROMPT = """You are an expert software debugger. Analyze bugs and respond ONLY with valid JSON. No prose before or after the JSON."""

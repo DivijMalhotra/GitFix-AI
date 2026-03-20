@@ -26,8 +26,8 @@ export default function SessionDetailPage() {
   const { data: session, isLoading } = useQuery({
     queryKey: ['session', sessionId],
     queryFn: () => debugApi.session(sessionId),
-    refetchInterval: (data) =>
-      data?.status === 'analyzing' || data?.status === 'pending' ? 2000 : false,
+    refetchInterval: (query) =>
+      (query.state.data?.status === 'analyzing' || query.state.data?.status === 'pending') ? 2000 : false,
   });
 
   const chatMutation = useMutation({

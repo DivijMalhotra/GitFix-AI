@@ -15,9 +15,9 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="btn-ghost text-sm">Dashboard</Link>
-            <Link href="/api/auth/github" className="btn-primary text-sm">
+            <a href="http://localhost:4000/api/auth/github" className="btn-primary text-sm">
               Connect GitHub
-            </Link>
+            </a>
           </div>
         </div>
       </nav>
@@ -41,10 +41,10 @@ export default function HomePage() {
         </p>
 
         <div className="flex items-center justify-center gap-4">
-          <Link href="/api/auth/github" className="btn-primary px-6 py-3 text-base">
+          <a href="http://localhost:4000/api/auth/github" className="btn-primary px-6 py-3 text-base">
             <GitBranch className="w-5 h-5" />
             Connect GitHub to Start
-          </Link>
+          </a>
           <Link href="#how-it-works" className="btn-secondary px-6 py-3 text-base">
             See how it works
           </Link>

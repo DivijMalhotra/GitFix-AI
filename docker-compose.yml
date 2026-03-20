@@ -4,28 +4,35 @@ services:
   mongodb:
     image: mongo:7
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo_data:/data/db
     environment:
       MONGO_INITDB_DATABASE: ai-debugger
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   chromadb:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.4.24
     ports:
       - "8001:8000"
     volumes:
       - chroma_data:/chroma/chroma
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   ai-engine:
     build: ./ai-engine
     ports:
       - "8000:8000"
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - LLM_PROVIDER=${LLM_PROVIDER:-anthropic}
-      - LLM_MODEL=${LLM_MODEL:-claude-sonnet-4-20250514}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-gemini}
+      - LLM_MODEL=${LLM_MODEL:-gemini-2.0-flash}
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
     volumes:
@@ -33,6 +40,9 @@ services:
       - repo_clones:/tmp/repos
     depends_on:
       - chromadb
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   backend:
     build: ./backend
@@ -46,11 +56,15 @@ services:
       - GITHUB_CALLBACK_URL=${GITHUB_CALLBACK_URL}
       - JWT_SECRET=${JWT_SECRET}
       - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
     volumes:
       - repo_clones:/tmp/repos
     depends_on:
       - mongodb
       - ai-engine
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   frontend:
     build: ./frontend
@@ -61,6 +75,9 @@ services:
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     depends_on:
       - backend
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
 volumes:
   mongo_data:

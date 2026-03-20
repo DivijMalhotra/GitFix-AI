@@ -15,7 +15,7 @@ class CodeRetriever:
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
         self.chroma = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
 
-    async def search(self, repo_id: str, query: str, k: int = 8) -> List[Dict]:
+    async def search(self, repo_id: str, query: str, k: int = 5) -> List[Dict]:
         try:
             collection = self.chroma.get_collection(f"repo_{repo_id}")
         except Exception:
@@ -47,4 +47,4 @@ class CodeRetriever:
 
         # Sort by relevance score descending
         chunks.sort(key=lambda x: x['score'], reverse=True)
-        return chunks
+        return chunks[:5]
