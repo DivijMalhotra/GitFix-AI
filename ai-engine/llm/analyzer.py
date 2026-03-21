@@ -24,7 +24,7 @@ class BugAnalyzer:
             from openai import AsyncOpenAI
             return AsyncOpenAI(
                 api_key=os.environ.get('OPENAI_API_KEY'),
-                base_url=os.environ.get('OPENAI_BASE_URL') 
+                base_url=os.environ.get('OPENAI_BASE_URL')
             )
         elif LLM_PROVIDER == 'anthropic':
             import anthropic
@@ -123,8 +123,16 @@ Respond ONLY with this JSON format:
     "affectedFiles": ["file/path"],
     "confidence": 0.85
   }},
-  "patch": null
-}}"""
+  "patch": "--- a/path/to/file\\n+++ b/path/to/file\\n@@ -1,3 +1,3 @@\\n context line\\n-old line to remove\\n+new line to add\\n context line"
+}}
+
+IMPORTANT: The patch field MUST contain a real unified diff (git diff format) that fixes the bug based on the code shown above.
+- Start with: diff --git a/filepath b/filepath
+- Then: --- a/filepath
+- Then: +++ b/filepath
+- Then the @@ hunk headers with actual line changes
+- Lines starting with - are removed, lines starting with + are added, lines starting with space are context
+- Only use null for patch if absolutely no code change is needed to fix the bug."""
 
     def _parse_response(self, raw: str) -> Dict:
         raw = raw.strip()
