@@ -62,14 +62,14 @@ class BugAnalyzer:
         elif LLM_PROVIDER == 'anthropic':
             response = await self.client.messages.create(
                 model=LLM_MODEL,
-                max_tokens=4096,
+                max_tokens=8192,
                 messages=[{"role": "user", "content": f"{SYSTEM_PROMPT}\n\n{prompt}"}]
             )
             raw = response.content[0].text
         else:
             response = await self.client.chat.completions.create(
                 model=LLM_MODEL,
-                max_tokens=4096,
+                max_tokens=8192,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
@@ -96,8 +96,8 @@ class BugAnalyzer:
 
     def _build_context(self, chunks: List[Dict]) -> str:
         parts = []
-        for c in chunks[:3]:  # limit to 3 chunks to save tokens
-            content = c['content'][:500]  # limit content length
+        for c in chunks[:8]:  # limit to 8 chunks to save tokens
+            content = c['content'][:1500]  # limit content length
             parts.append(
                 f"### File: `{c['filePath']}` (lines {c['startLine']}-{c['endLine']})\n"
                 f"```{c['language']}\n{content}\n```"
@@ -109,7 +109,7 @@ class BugAnalyzer:
 
 Error: {error_message}
 
-Stack Trace: {(stack_trace or 'Not provided')[:300]}
+Stack Trace: {(stack_trace or 'Not provided')[:1000]}
 
 Relevant Code:
 {context}
@@ -117,9 +117,9 @@ Relevant Code:
 Respond ONLY with this JSON format:
 {{
   "analysis": {{
-    "rootCause": "One sentence root cause",
-    "explanation": "Brief explanation",
-    "suggestedFix": "What to fix",
+    "rootCause": "Detailed root cause explaining exactly what is wrong in the code, which component is failing and why",
+    "explanation": "Detailed explanation of why this bug occurs, how it affects the system, and what happens if left unfixed",
+    "suggestedFix": "Step by step instructions on exactly how to fix the bug with specific code changes needed",
     "affectedFiles": ["file/path"],
     "confidence": 0.85
   }},

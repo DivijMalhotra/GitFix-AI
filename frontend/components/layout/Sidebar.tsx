@@ -3,16 +3,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth';
 import {
-  LayoutDashboard, GitBranch, Bug, GitPullRequest,
-  Settings, LogOut, Zap, ChevronRight,
+  LayoutDashboard, Database, Bug, User, LogOut
 } from 'lucide-react';
-import Image from 'next/image';
 import { clsx } from 'clsx';
 
 const NAV = [
-  { href: '/dashboard',         icon: LayoutDashboard, label: 'Overview'      },
-  { href: '/dashboard/repos',   icon: GitBranch,       label: 'Repositories'  },
-  { href: '/dashboard/debug',   icon: Bug,             label: 'Debug Sessions' },
+  { href: '/dashboard',         icon: LayoutDashboard, label: 'OVERVIEW'      },
+  { href: '/dashboard/repos',   icon: Database,        label: 'REPOSITORIES'  },
+  { href: '/dashboard/debug',   icon: Bug,             label: 'DEBUG SESSIONS'},
 ];
 
 interface SidebarProps {
@@ -24,55 +22,48 @@ export function Sidebar({ user }: SidebarProps) {
   const { logout } = useAuthStore();
 
   return (
-    <aside className="w-60 border-r border-[#30363d] flex flex-col bg-[#0d1117] shrink-0">
+    <aside className="w-64 border-r border-[#1e2336] flex flex-col bg-[#161a25] shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.2)]">
       {/* Logo */}
-      <div className="px-4 py-4 border-b border-[#30363d]">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#238636] rounded-md flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+      <div className="px-6 py-8">
+        <Link href="/dashboard" className="flex items-center gap-3 group">
+          <div className="w-9 h-9 bg-indigo-500/20 rounded flex items-center justify-center text-indigo-400">
+            <Bug className="w-5 h-5 fill-current" />
           </div>
-          <span className="font-semibold text-[#e6edf3] text-sm tracking-tight">AI Debugger</span>
+          <div className="flex flex-col">
+            <span className="font-bold text-slate-100 text-[15px] tracking-wide leading-tight">GitFix</span>
+            <span className="text-[8px] text-slate-400 font-bold tracking-[0.2em] mt-[3px]">AI DEBUGGING SUITE</span>
+          </div>
         </Link>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 space-y-0.5">
+      <nav className="flex-1 px-4 py-4 space-y-1">
         {NAV.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
-              className={clsx('sidebar-item', active && 'active')}
+              className={clsx(
+                "flex items-center gap-4 px-4 py-3.5 rounded-lg text-xs font-bold tracking-widest transition-all",
+                active 
+                  ? "bg-[#21263c] text-slate-200" 
+                  : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
+              )}
             >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span className="flex-1">{label}</span>
-              {active && <ChevronRight className="w-3 h-3" />}
+              <Icon className={clsx("w-4 h-4 shrink-0", active ? "text-slate-300" : "text-slate-500")} />
+              <span>{label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* User */}
-      <div className="border-t border-[#30363d] p-3 space-y-1">
-        <div className="flex items-center gap-3 px-2 py-2">
-          {user.avatarUrl ? (
-            <Image src={user.avatarUrl} alt={user.username} width={28} height={28}
-              className="rounded-full" />
-          ) : (
-            <div className="w-7 h-7 rounded-full bg-[#238636] flex items-center justify-center text-xs font-bold text-white">
-              {user.username[0].toUpperCase()}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-[#e6edf3] truncate">{user.displayName || user.username}</p>
-            <p className="text-xs text-[#6e7681] truncate">@{user.username}</p>
-          </div>
-        </div>
+      {/* Bottom Actions */}
+      <div className="p-4 mt-auto mb-4 border-t border-white/5">
         <button onClick={logout}
-          className="sidebar-item w-full text-[#f85149] hover:text-[#f85149] hover:bg-[#3d1f1f]">
+          className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-xs font-bold tracking-widest text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all">
           <LogOut className="w-4 h-4" />
-          Sign out
+          <span>SIGN OUT</span>
         </button>
       </div>
     </aside>

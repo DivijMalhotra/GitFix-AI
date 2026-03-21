@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="flex h-screen bg-[#010409] overflow-hidden">
+    <div className="flex h-screen bg-[#151822] overflow-hidden text-slate-100">
       <Sidebar user={user} />
       <main className="flex-1 overflow-y-auto">
         {children}

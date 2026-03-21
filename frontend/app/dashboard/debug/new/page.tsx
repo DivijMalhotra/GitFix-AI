@@ -60,13 +60,13 @@ export default function NewDebugPage() {
         ) : (
           <div className="relative">
             <select
-              className="input appearance-none pr-8"
+              className="input appearance-none pr-8 bg-[#0d1117] text-[#e6edf3]"
               value={repoId}
               onChange={e => setRepoId(e.target.value)}
             >
-              <option value="">Select a repository…</option>
+              <option value="" className="bg-[#0d1117] text-[#e6edf3]">Select a repository…</option>
               {indexedRepos.map((r: any) => (
-                <option key={r._id} value={r._id}>{r.fullName}</option>
+                <option key={r._id} value={r._id} className="bg-[#0d1117] text-[#e6edf3]">{r.fullName}</option>
               ))}
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6e7681] pointer-events-none" />
