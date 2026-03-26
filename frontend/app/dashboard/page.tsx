@@ -100,7 +100,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-[30px] h-[30px] shrink-0 rounded-[10px] bg-[#2a2e41] text-slate-400 text-[13px] font-extrabold flex items-center justify-center">2</div>
+              <div className="w-[30px] h-[30px] shrink-0 rounded-[10px] bg-[#1a4731] text-slate-400 text-[13px] font-extrabold flex items-center justify-center">2</div>
               <div>
                 <h4 className="text-sm font-bold text-slate-200 mb-1.5 leading-tight">Get a fix + Auto PR</h4>
                 <p className="text-[12px] text-[#8a92b2] leading-relaxed">AI generates a code patch and raises a GitHub Pull Request automatically — no manual effort needed.</p>
