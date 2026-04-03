@@ -60,10 +60,6 @@ cd frontend && npm install && npm run dev
 - 💬 **Conversational Debug** - Chat with your codebase
 - 📋 **Issue Analyzer** - Parse GitHub issues directly
 
-## Environment Variables
-
-See `.env.example` for all required variables.
-
 ## Tech Stack
 
 | Layer | Technology |
