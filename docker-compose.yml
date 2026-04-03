@@ -48,7 +48,7 @@ services:
     ports:
       - "4000:4000"
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/ai-debugger
+      - MONGODB_URI=${MONGODB_URI}
       - AI_ENGINE_URL=http://ai-engine:8000
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
