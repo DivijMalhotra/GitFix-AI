@@ -23,7 +23,7 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="btn-ghost text-sm">Dashboard</Link>
-            <a href="http://localhost:4000/api/auth/github" className="btn-primary text-sm">
+            <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/github`} className="btn-primary text-sm">
               Connect GitHub
             </a>
           </div>
@@ -49,7 +49,7 @@ export default function HomePage() {
         </p>
 
         <div className="flex items-center justify-center gap-4">
-          <a href="http://localhost:4000/api/auth/github" className="btn-primary px-8 py-3.5 text-base rounded-xl">
+          <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/github`} className="btn-primary px-8 py-3.5 text-base rounded-xl">
             <GitBranch className="w-5 h-5" />
             Connect GitHub to Start
           </a>
