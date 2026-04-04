@@ -48,28 +48,28 @@ export default function HomePage() {
           code fix, and an automated pull request — in seconds.
         </p>
 
-        <div className="flex items-center justify-center gap-4">
-          <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/github`} className="btn-primary px-8 py-3.5 text-base rounded-xl">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/github`} className="btn-primary w-full sm:w-auto px-8 py-3.5 text-base rounded-xl justify-center">
             <GitBranch className="w-5 h-5" />
             Connect GitHub to Start
           </a>
-          <Link href="#how-it-works" className="btn-secondary px-8 py-3.5 text-base rounded-xl">
+          <Link href="#how-it-works" className="btn-secondary w-full sm:w-auto px-8 py-3.5 text-base rounded-xl justify-center">
             See how it works
           </Link>
         </div>
       </section>
 
       {/* Terminal mock */}
-      <section className="relative max-w-4xl mx-auto px-6 pb-24 z-10">
+      <section className="relative max-w-4xl mx-auto px-4 md:px-6 pb-24 z-10 w-full">
         <div className="absolute inset-0 bg-gradient-to-b from-[#5E5DF0]/10 to-transparent blur-3xl rounded-3xl -z-10" />
         <div className="card overflow-hidden border-white/5 shadow-2xl shadow-black/50 bg-[#161A26]">
           <div className="flex items-center gap-2 px-4 py-3 bg-[#11141E]/90 border-b border-white/5 backdrop-blur-md">
             <div className="w-3 h-3 rounded-full bg-red-500/80" />
             <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
             <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-            <span className="ml-2 text-xs text-slate-500 font-mono">ai-debugger — analysis</span>
+            <span className="ml-2 text-xs text-slate-500 font-mono truncate">ai-debugger — analysis</span>
           </div>
-          <div className="p-6 font-mono text-sm space-y-3 bg-[#161A26]/80 backdrop-blur-sm">
+          <div className="p-4 md:p-6 font-mono text-[11px] sm:text-sm space-y-3 bg-[#161A26]/80 backdrop-blur-sm overflow-x-auto whitespace-nowrap md:whitespace-normal">
             <div className="text-slate-500">$ Analyzing TypeError in <span className="text-[#8B88FF]">api/users.js:42</span></div>
             <div className="flex gap-2">
               <span className="text-emerald-400">✓</span>
@@ -84,7 +84,8 @@ export default function HomePage() {
               <span className="text-slate-200">Root cause: <span className="text-red-400">Cannot read property 'id' of undefined</span></span>
             </div>
             <div className="flex gap-2">
-              <span className="text-slate-400 ml-4">User object not validated before destructuring on line 42.</span>
+              <span className="text-slate-400 ml-4 hidden sm:block">User object not validated before destructuring on line 42.</span>
+              <span className="text-slate-400 ml-4 sm:hidden">User object not validated...</span>
             </div>
             <div className="flex gap-2 mt-2">
               <span className="text-emerald-400">✓</span>

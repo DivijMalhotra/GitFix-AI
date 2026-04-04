@@ -43,23 +43,23 @@ export default function DashboardPage() {
   const prCreated = sessions.filter((s: any) => s.status === 'pr_created').length;
 
   return (
-    <div className="flex-1 flex flex-col p-8 max-w-6xl mx-auto w-full min-h-screen">
+    <div className="flex-1 flex flex-col p-4 sm:p-8 max-w-6xl mx-auto w-full min-h-screen">
       
       {/* Top Header */}
-      <header className="flex items-center justify-between mb-12">
+      <header className="flex items-center justify-between mb-8 md:mb-12">
         <h1 className="text-xl font-bold text-slate-100 tracking-wide">GitFix AI</h1>
       </header>
 
       {/* Main Greeting */}
-      <div className="mb-10">
-        <h2 className="text-[34px] font-bold text-white flex items-center gap-3 mb-2">
-          Good to see you, {user?.displayName?.split(' ')[0] || user?.username} <span className="text-[32px]">👋</span>
+      <div className="mb-8 md:mb-10">
+        <h2 className="text-2xl md:text-[34px] font-bold text-white flex items-center gap-3 mb-2 flex-wrap">
+          Good to see you, {user?.displayName?.split(' ')[0] || user?.username} <span className="text-2xl md:text-[32px]">👋</span>
         </h2>
         <p className="text-[#8a92b2] text-[15px] font-medium tracking-wide">Your AI debugging workspace is active and synced.</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
         {[
           { label: 'REPOSITORIES', value: repos.length, icon: Database, color: 'text-[#0bd9ab]' },
           { label: 'DEBUG SESSIONS', value: sessions.length, icon: Bug, color: 'text-[#0bd9ab]' },
@@ -76,13 +76,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Bottom Layout (Quick Start + Recent Sessions) */}
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Quick Start Panel */}
-        <div className="bg-[#1e2235] rounded-xl p-7 flex flex-col shrink-0">
-          <h3 className="text-lg font-bold text-slate-100 mb-8 tracking-wide">Quick Start</h3>
+        <div className="bg-[#1e2235] rounded-xl p-6 md:p-7 flex flex-col shrink-0">
+          <h3 className="text-lg font-bold text-slate-100 mb-6 md:mb-8 tracking-wide">Quick Start</h3>
           
-          <div className="space-y-8 flex-1">
+          <div className="space-y-6 md:space-y-8 flex-1">
             <div className="flex gap-4">
               <div className="w-[30px] h-[30px] shrink-0 rounded-[10px] bg-[#143e40] text-[#0bd9ab] text-[13px] font-extrabold flex items-center justify-center">1</div>
               <div>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-[30px] h-[30px] shrink-0 rounded-[10px] bg-[#1a4731] text-slate-400 text-[13px] font-extrabold flex items-center justify-center">2</div>
+              <div className="w-[30px] h-[30px] shrink-0 rounded-[10px] bg-[#1a4731] text-slate-400 text-[13px] font-extrabold flex items-center justify-center">3</div>
               <div>
                 <h4 className="text-sm font-bold text-slate-200 mb-1.5 leading-tight">Get a fix + Auto PR</h4>
                 <p className="text-[12px] text-[#8a92b2] leading-relaxed">AI generates a code patch and raises a GitHub Pull Request automatically — no manual effort needed.</p>
@@ -108,14 +108,14 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <Link href="/dashboard/debug/new" className="mt-10 w-full bg-[#8b79ff] hover:bg-[#9a8aff] text-white text-[13px] font-bold py-3.5 rounded-md flex items-center justify-center gap-2 transition-all shadow-[0_4px_14px_rgba(139,121,255,0.3)] uppercase tracking-wide">
+          <Link href="/dashboard/debug/new" className="mt-8 md:mt-10 w-full bg-[#8b79ff] hover:bg-[#9a8aff] text-white text-[13px] font-bold py-3.5 rounded-md flex items-center justify-center gap-2 transition-all shadow-[0_4px_14px_rgba(139,121,255,0.3)] uppercase tracking-wide">
             <Plus className="w-4 h-4" /> Start Debugging
           </Link>
         </div>
 
         {/* Recent Sessions */}
-        <div className="col-span-2 flex flex-col pl-4">
-          <div className="flex items-center justify-between mb-6 pt-1">
+        <div className="col-span-1 lg:col-span-2 flex flex-col md:pl-4">
+          <div className="flex items-center justify-between mb-4 md:mb-6 pt-1">
             <h3 className="text-[17px] font-bold text-slate-100 tracking-wide">Recent Sessions</h3>
             <Link href="/dashboard/debug" className="text-[11px] font-extrabold tracking-widest text-slate-300 hover:text-white transition-colors uppercase">
               VIEW ALL HISTORY
@@ -124,21 +124,26 @@ export default function DashboardPage() {
 
           <div className="space-y-3.5">
             {recentSessions.map((s: any, idx: number) => (
-              <div key={s._id} className="bg-[#1e2235] rounded-xl p-4 flex items-center gap-5 hover:bg-[#23283d] transition-all border border-transparent shadow-sm relative group cursor-pointer group/card">
-                <SessionIcon index={idx} />
-                
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-[15px] font-semibold text-slate-100 truncate group-hover/card:text-indigo-300 transition-colors">{s.title || s.errorMessage?.substring(0, 50) || 'Unknown Error'}</h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] uppercase tracking-[0.15em] text-[#8a92b2] font-bold">{s.repoId?.name || s.projectName || 'LUMINESCENT-UI'}</span>
-                    <span className="text-[#8a92b2] text-[10px]">•</span>
-                    <span className="text-[10px] uppercase tracking-[0.15em] text-[#8a92b2] font-bold">
-                      {formatDistanceToNow(new Date(s.createdAt), { addSuffix: true }).replace('about ', '')}
-                    </span>
+              <div key={s._id} className="bg-[#1e2235] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-5 hover:bg-[#23283d] transition-all border border-transparent shadow-sm relative group cursor-pointer group/card">
+                <div className="flex items-center gap-4 w-full sm:flex-1 overflow-hidden">
+                  <SessionIcon index={idx} />
+                  
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-[15px] font-semibold text-slate-100 truncate group-hover/card:text-indigo-300 transition-colors">{s.title || s.errorMessage?.substring(0, 50) || 'Unknown Error'}</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] uppercase tracking-[0.15em] text-[#8a92b2] font-bold">{s.repoId?.name || s.projectName || 'LUMINESCENT-UI'}</span>
+                      <span className="text-[#8a92b2] text-[10px] hidden sm:inline">•</span>
+                      <span className="text-[10px] uppercase tracking-[0.15em] text-[#8a92b2] font-bold hidden sm:inline">
+                        {formatDistanceToNow(new Date(s.createdAt), { addSuffix: true }).replace('about ', '')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="shrink-0">
+                <div className="shrink-0 w-full sm:w-auto flex justify-between sm:justify-end items-center mt-2 sm:mt-0">
+                  <span className="text-[10px] uppercase tracking-[0.15em] text-[#8a92b2] font-bold sm:hidden">
+                    {formatDistanceToNow(new Date(s.createdAt), { addSuffix: true }).replace('about ', '')}
+                  </span>
                   <Badge status={s.status} />
                 </div>
                 

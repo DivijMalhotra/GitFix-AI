@@ -63,38 +63,41 @@ export default function SessionDetailPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="border-b border-[#30363d] px-6 py-4 flex items-center gap-4 shrink-0">
-        <Bug className="w-5 h-5 text-[#f85149]" />
-        <div className="flex-1 min-w-0">
-          <h1 className="font-semibold text-sm truncate">{session.title || 'Debug Session'}</h1>
-          <div className="flex items-center gap-3 mt-0.5">
-            <StatusBadge status={session.status} />
-            <span className="text-xs text-[#6e7681]">{session.repoId?.fullName}</span>
-            <span className="text-xs text-[#6e7681]">
-              {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}
-            </span>
+      <div className="border-b border-[#30363d] px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
+        <div className="flex items-center gap-4 flex-1 min-w-0 w-full sm:w-auto">
+          <Bug className="w-5 h-5 text-[#f85149] shrink-0" />
+          <div className="flex-1 min-w-0">
+            <h1 className="font-semibold text-sm truncate">{session.title || 'Debug Session'}</h1>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-0.5">
+              <StatusBadge status={session.status} />
+              <span className="text-xs text-[#6e7681] truncate max-w-[150px] sm:max-w-none">{session.repoId?.fullName}</span>
+              <span className="text-xs text-[#6e7681] hidden sm:block">•</span>
+              <span className="text-xs text-[#6e7681]">
+                {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end mt-2 sm:mt-0">
           {session.pullRequestUrl ? (
             <a href={session.pullRequestUrl} target="_blank" rel="noopener"
-              className="btn-secondary text-xs">
+              className="btn-secondary text-xs flex-1 sm:flex-none justify-center">
               <GitPullRequest className="w-3.5 h-3.5 text-[#3fb950]" />
               View PR #{session.pullRequestNumber}
               <ExternalLink className="w-3 h-3" />
             </a>
           ) : session.patch && session.status === 'analyzed' && (
-            <button onClick={() => setShowPRModal(true)} className="btn-primary text-xs">
+            <button onClick={() => setShowPRModal(true)} className="btn-primary text-xs flex-1 sm:flex-none justify-center">
               <GitPullRequest className="w-3.5 h-3.5" /> Create Pull Request
             </button>
           )}
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left panel - Analysis */}
-        <div className="w-1/2 border-r border-[#30363d] overflow-y-auto p-5 space-y-5">
+        <div className="h-1/2 md:h-full w-full md:w-1/2 border-b md:border-b-0 md:border-r border-[#30363d] overflow-y-auto p-4 sm:p-5 space-y-4 sm:space-y-5">
 
           {/* Analyzing spinner */}
           {isAnalyzing && (
@@ -124,8 +127,8 @@ export default function SessionDetailPage() {
                   <AlertTriangle className="w-4 h-4 text-[#d29922]" />
                   <h3 className="text-sm font-semibold">Root Cause</h3>
                   {session.analysis.confidence && (
-                    <span className="badge-yellow ml-auto">
-                      {Math.round(session.analysis.confidence * 100)}% confidence
+                    <span className="badge-yellow ml-auto shrink-0">
+                      {Math.round(session.analysis.confidence * 100)}%
                     </span>
                   )}
                 </div>
@@ -155,7 +158,7 @@ export default function SessionDetailPage() {
                 {session.analysis.affectedFiles?.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-1">
                     {session.analysis.affectedFiles.map((f: string) => (
-                      <span key={f} className="badge-blue font-mono text-xs">{f}</span>
+                      <span key={f} className="badge-blue font-mono text-xs truncate max-w-full">{f}</span>
                     ))}
                   </div>
                 )}
@@ -171,7 +174,9 @@ export default function SessionDetailPage() {
                   <FileCode2 className="w-4 h-4 text-[#3fb950]" /> Generated Patch
                 </h3>
               </div>
-              <PatchViewer patch={session.patch} />
+              <div className="overflow-x-auto">
+                <PatchViewer patch={session.patch} />
+              </div>
             </div>
           )}
 
@@ -182,17 +187,17 @@ export default function SessionDetailPage() {
                 onClick={() => setShowChunks(v => !v)}
                 className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium hover:bg-[#21262d] transition-colors"
               >
-                <span className="flex items-center gap-2">
-                  <FileCode2 className="w-4 h-4 text-[#6e7681]" />
-                  Retrieved Code Chunks ({session.relevantChunks.length})
+                <span className="flex items-center gap-2 text-left">
+                  <FileCode2 className="w-4 h-4 text-[#6e7681] shrink-0" />
+                  <span className="truncate">Retrieved Code Chunks ({session.relevantChunks.length})</span>
                 </span>
-                {showChunks ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                {showChunks ? <ChevronDown className="w-4 h-4 shrink-0 overflow-hidden" /> : <ChevronRight className="w-4 h-4 shrink-0 overflow-hidden" />}
               </button>
               {showChunks && (
                 <div className="border-t border-[#30363d] divide-y divide-[#30363d]">
                   {session.relevantChunks.map((c: any, i: number) => (
-                    <div key={i} className="p-3 space-y-1">
-                      <div className="flex items-center gap-2">
+                    <div key={i} className="p-3 space-y-1 overflow-x-auto">
+                      <div className="flex items-center gap-2 min-w-max">
                         <span className="text-xs text-[#58a6ff] font-mono">{c.filePath}</span>
                         <span className="text-xs text-[#6e7681]">lines {c.startLine}-{c.endLine}</span>
                         <span className="badge-gray text-xs ml-auto">{(c.score * 100).toFixed(0)}%</span>
@@ -209,7 +214,7 @@ export default function SessionDetailPage() {
         </div>
 
         {/* Right panel - Chat */}
-        <div className="w-1/2 flex flex-col">
+        <div className="h-1/2 md:h-full w-full md:w-1/2 flex flex-col">
           <div className="px-4 py-3 border-b border-[#30363d] shrink-0">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#d29922]" /> Conversational Debug
@@ -219,7 +224,7 @@ export default function SessionDetailPage() {
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {(session.messages || []).length === 0 && !isAnalyzing && (
-              <div className="text-center text-sm text-[#6e7681] pt-8">
+              <div className="text-center text-sm text-[#6e7681] pt-4 md:pt-8 px-2">
                 <Sparkles className="w-8 h-8 mx-auto mb-3 text-[#30363d]" />
                 <p>Ask questions about the bug, request alternative fixes,</p>
                 <p>or explore the root cause further.</p>
@@ -240,7 +245,7 @@ export default function SessionDetailPage() {
                     ? 'bg-[#1f6335] text-[#e6edf3] ml-auto'
                     : 'bg-[#161b22] border border-[#30363d] text-[#e6edf3]'
                 }`}>
-                  <div className="prose prose-sm prose-invert max-w-none">
+                  <div className="prose prose-sm prose-invert max-w-none overflow-x-auto">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                   </div>
                 </div>
@@ -265,7 +270,7 @@ export default function SessionDetailPage() {
 
           <form onSubmit={handleChat} className="border-t border-[#30363d] p-3 flex gap-2 shrink-0">
             <input
-              className="input flex-1 text-sm"
+              className="input flex-1 text-sm min-w-0"
               placeholder={isAnalyzing ? 'Waiting for analysis…' : 'Ask about this bug…'}
               value={chatInput}
               onChange={e => setChatInput(e.target.value)}
@@ -273,7 +278,7 @@ export default function SessionDetailPage() {
             />
             <button
               type="submit"
-              className="btn-primary px-3"
+              className="btn-primary px-3 shrink-0"
               disabled={!chatInput.trim() || isAnalyzing || chatMutation.isPending}
             >
               {chatMutation.isPending

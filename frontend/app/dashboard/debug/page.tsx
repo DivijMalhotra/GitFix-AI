@@ -24,13 +24,13 @@ export default function DebugSessionsPage() {
   });
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Debug Sessions</h1>
           <p className="text-sm text-[#8b949e] mt-1">AI bug analyses and generated patches</p>
         </div>
-        <Link href="/dashboard/debug/new" className="btn-primary">
+        <Link href="/dashboard/debug/new" className="btn-primary w-full sm:w-auto justify-center">
           <Plus className="w-4 h-4" /> New Session
         </Link>
       </div>

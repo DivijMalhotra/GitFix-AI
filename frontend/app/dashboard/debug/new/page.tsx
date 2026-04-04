@@ -41,7 +41,7 @@ export default function NewDebugPage() {
   const canSubmit = repoId && (mode === 'issue' ? issueUrl : errorMessage);
 
   return (
-    <div className="p-8 max-w-3xl mx-auto space-y-6 animate-fade-in">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold">New Debug Session</h1>
         <p className="text-sm text-[#8b949e] mt-1">Submit a bug for AI-powered root cause analysis</p>
@@ -60,7 +60,7 @@ export default function NewDebugPage() {
         ) : (
           <div className="relative">
             <select
-              className="input appearance-none pr-8 bg-[#0d1117] text-[#e6edf3]"
+              className="input appearance-none pr-8 bg-[#0d1117] text-[#e6edf3] w-full"
               value={repoId}
               onChange={e => setRepoId(e.target.value)}
             >
@@ -75,7 +75,7 @@ export default function NewDebugPage() {
       </div>
 
       {/* Mode tabs */}
-      <div className="flex gap-1 p-1 bg-[#0d1117] border border-[#30363d] rounded-lg w-fit">
+      <div className="flex gap-1 p-1 bg-[#0d1117] border border-[#30363d] rounded-lg w-full sm:w-fit overflow-x-auto">
         {[
           { id: 'error', icon: Terminal, label: 'Error / Stack Trace' },
           { id: 'issue', icon: Link2,    label: 'GitHub Issue URL' },
@@ -83,7 +83,7 @@ export default function NewDebugPage() {
           <button
             key={id}
             onClick={() => setMode(id as Mode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm transition-all ${
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm transition-all whitespace-nowrap ${
               mode === id
                 ? 'bg-[#21262d] text-[#e6edf3] font-medium'
                 : 'text-[#8b949e] hover:text-[#e6edf3]'
@@ -96,7 +96,7 @@ export default function NewDebugPage() {
 
       {mode === 'error' ? (
         <div className="space-y-4">
-          <div className="card p-5 space-y-3">
+          <div className="card p-4 sm:p-5 space-y-3">
             <label className="text-sm font-medium text-[#e6edf3]">
               Error Message <span className="text-[#f85149]">*</span>
             </label>
@@ -108,7 +108,7 @@ export default function NewDebugPage() {
             />
           </div>
 
-          <div className="card p-5 space-y-3">
+          <div className="card p-4 sm:p-5 space-y-3">
             <label className="text-sm font-medium text-[#e6edf3]">Stack Trace</label>
             <textarea
               className="input min-h-[160px] font-mono text-xs resize-y"
@@ -118,7 +118,7 @@ export default function NewDebugPage() {
             />
           </div>
 
-          <div className="card p-5 space-y-3">
+          <div className="card p-4 sm:p-5 space-y-3">
             <label className="text-sm font-medium text-[#e6edf3]">Logs <span className="text-[#6e7681] font-normal">(optional)</span></label>
             <textarea
               className="input min-h-[100px] font-mono text-xs resize-y"
@@ -129,12 +129,12 @@ export default function NewDebugPage() {
           </div>
         </div>
       ) : (
-        <div className="card p-5 space-y-3">
+        <div className="card p-4 sm:p-5 space-y-3">
           <label className="text-sm font-medium text-[#e6edf3]">
             GitHub Issue URL <span className="text-[#f85149]">*</span>
           </label>
           <input
-            className="input"
+            className="input w-full"
             placeholder="https://github.com/owner/repo/issues/123"
             value={issueUrl}
             onChange={e => setIssueUrl(e.target.value)}
@@ -145,10 +145,10 @@ export default function NewDebugPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-end gap-3">
-        <a href="/dashboard/debug" className="btn-secondary">Cancel</a>
+      <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 mt-6 pt-4 border-t border-white/5">
+        <a href="/dashboard/debug" className="btn-secondary w-full sm:w-auto justify-center">Cancel</a>
         <button
-          className="btn-primary px-6"
+          className="btn-primary px-6 w-full sm:w-auto justify-center"
           disabled={!canSubmit || analyzeMutation.isPending}
           onClick={() => analyzeMutation.mutate()}
         >
