@@ -4,8 +4,8 @@ import aiofiles
 import logging
 from pathlib import Path
 from typing import List, Dict
-import chromadb
-from sentence_transformers import SentenceTransformer
+from rag.chroma_client import ChromaHttpClient
+from fastembed import TextEmbedding
 import git
 
 logger = logging.getLogger(__name__)
@@ -31,8 +31,9 @@ CHROMA_PORT = int(os.environ.get('CHROMA_PORT', '8001'))
 
 class RepositoryIndexer:
     def __init__(self):
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
-        self.chroma = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+        # fastembed downloads the ONNX model on first use and caches it
+        self.model = TextEmbedding('sentence-transformers/all-MiniLM-L6-v2')
+        self.chroma = ChromaHttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
 
     async def index(self, repo_id: str, owner: str, name: str,
                     github_token: str, default_branch: str = 'main') -> Dict:
@@ -128,7 +129,8 @@ class RepositoryIndexer:
         for i in range(0, len(chunks), batch_size):
             batch = chunks[i:i + batch_size]
             texts = [c['content'] for c in batch]
-            embeddings = self.model.encode(texts, show_progress_bar=False).tolist()
+            # fastembed returns a generator of numpy arrays; convert to list of lists
+            embeddings = [emb.tolist() for emb in self.model.embed(texts)]
 
             collection.add(
                 ids=[c['id'] for c in batch],

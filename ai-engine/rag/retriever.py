@@ -1,8 +1,8 @@
 import os
 import logging
 from typing import List, Dict
-import chromadb
-from sentence_transformers import SentenceTransformer
+from rag.chroma_client import ChromaHttpClient
+from fastembed import TextEmbedding
 
 logger = logging.getLogger(__name__)
 
@@ -12,8 +12,9 @@ CHROMA_PORT = int(os.environ.get('CHROMA_PORT', '8001'))
 
 class CodeRetriever:
     def __init__(self):
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
-        self.chroma = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+        # fastembed downloads the ONNX model on first use and caches it
+        self.model = TextEmbedding('sentence-transformers/all-MiniLM-L6-v2')
+        self.chroma = ChromaHttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
 
     async def search(self, repo_id: str, query: str, k: int = 5) -> List[Dict]:
         try:
@@ -22,9 +23,10 @@ class CodeRetriever:
             logger.warning(f"Collection not found for repo {repo_id}")
             return []
 
-        embedding = self.model.encode([query]).tolist()
+        # fastembed returns a generator; take the first (and only) embedding
+        embedding = next(iter(self.model.embed([query]))).tolist()
         results = collection.query(
-            query_embeddings=embedding,
+            query_embeddings=[embedding],
             n_results=min(k, collection.count()),
             include=['documents', 'metadatas', 'distances'],
         )

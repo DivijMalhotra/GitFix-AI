@@ -8,11 +8,13 @@ httpx==0.27.2
 google-generativeai==0.8.3
 openai==1.66.3
 
-# Embeddings & Vector DB
-torch==2.3.1
-sentence-transformers==3.0.1
-chromadb==0.4.24
-numpy==1.26.4
+# Embeddings (ONNX-based, no PyTorch)
+# NOTE: fastembed is installed via Dockerfile with --no-deps to skip heavy
+# optional extras (PyStemmer/mmh3/snowballstemmer — sparse models only).
+# Its core runtime deps (onnxruntime, huggingface-hub, tokenizers, tqdm,
+# pillow, loguru) are pre-installed in the Dockerfile before fastembed.
+# numpy is intentionally NOT pinned here — onnxruntime resolves the ABI-
+# compatible version (>=2.x) and pinning 1.26.4 breaks onnxruntime at runtime.
 
 # Code processing
 gitpython==3.1.43
