@@ -126,7 +126,7 @@ class RepositoryIndexer:
         if not chunks:
             return
 
-        batch_size = 100
+        batch_size = 20
         for i in range(0, len(chunks), batch_size):
             batch = chunks[i:i + batch_size]
             texts = [c['content'] for c in batch]
