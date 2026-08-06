@@ -27,13 +27,14 @@ SKIP_DIRS = {
 CLONE_BASE = os.environ.get('CLONE_BASE', '/tmp/repos')
 CHROMA_HOST = os.environ.get('CHROMA_HOST', 'localhost')
 CHROMA_PORT = int(os.environ.get('CHROMA_PORT', '8001'))
+CHROMA_SSL = os.environ.get('CHROMA_SSL', 'false').lower() == 'true'
 
 
 class RepositoryIndexer:
     def __init__(self):
         # fastembed downloads the ONNX model on first use and caches it
         self.model = TextEmbedding('sentence-transformers/all-MiniLM-L6-v2')
-        self.chroma = ChromaHttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+        self.chroma = ChromaHttpClient(host=CHROMA_HOST, port=CHROMA_PORT, ssl=CHROMA_SSL)
 
     async def index(self, repo_id: str, owner: str, name: str,
                     github_token: str, default_branch: str = 'main') -> Dict:

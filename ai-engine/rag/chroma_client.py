@@ -57,8 +57,14 @@ class ChromaHttpClient:
     Uses only httpx for HTTP calls — no chromadb package required.
     """
 
-    def __init__(self, host: str = "localhost", port: int = 8000):
-        self._base = f"http://{host}:{port}"
+    def __init__(self, host: str = "localhost", port: int = 8000, ssl: bool = False):
+        scheme = "https" if ssl else "http"
+        # Omit the port when it's the scheme's default (e.g. 443 for a
+        # hosted HTTPS service like Render) — including it there breaks TLS.
+        if (ssl and port == 443) or (not ssl and port == 80):
+            self._base = f"{scheme}://{host}"
+        else:
+            self._base = f"{scheme}://{host}:{port}"
         self._http = httpx.Client(timeout=httpx.Timeout(30.0))
 
     def delete_collection(self, name: str) -> None:
