@@ -1,4 +1,5 @@
-# Render Blueprint — deploys all 4 services on the free plan.
+# Render Blueprint — deploys 3 services on the free plan (frontend now
+# lives on Vercel instead, see below).
 #
 # Free-tier caveats to know before you deploy:
 #  - Free web services spin down after 15 min idle (cold start ~30-60s).
@@ -10,11 +11,17 @@
 #    do private-only services), with no auth in front of it. Don't index
 #    anything sensitive on the free tier.
 #
+# Frontend: deployed separately on Vercel, not part of this blueprint.
+# Set these on Vercel (Project → Settings → Environment Variables):
+#   NEXT_PUBLIC_API_URL        = https://<backend>.onrender.com
+#   NEXT_PUBLIC_APP_URL         = https://<your-app>.vercel.app  (no trailing slash!)
+#   NEXT_PUBLIC_AI_ENGINE_URL   = https://<ai-engine>.onrender.com
+#   NEXT_PUBLIC_CHROMA_URL      = https://<chroma>.onrender.com
+#
 # Some values below are marked `sync: false`, meaning Render will prompt
-# you to fill them in when you deploy this blueprint (via "New +" ->
-# "Blueprint" in the Render dashboard). A few — the cross-service URLs —
-# can only be known *after* the services first get their onrender.com
-# hostnames, so you'll fill those in once, then trigger one redeploy.
+# you to fill them in when you deploy/sync this blueprint. The cross-service
+# URLs can only be known *after* the services first get their onrender.com
+# hostnames, so fill those in once, then trigger a redeploy.
 
 services:
   # ── Vector DB ─────────────────────────────────────────────
@@ -32,7 +39,10 @@ services:
       - key: PORT
         value: "8000"
 
-  # ── AI engine (FastAPI) ───────────────────────────────────
+  # ── AI engine (FastAPI) ────────────────────────────────────
+  # Uses the OpenAI SDK pointed at OpenRouter (an OpenAI-API-compatible
+  # router) via OPENAI_BASE_URL — LLM_PROVIDER stays "openai" since that's
+  # what selects the OpenAI SDK code path in llm/analyzer.py.
   - type: web
     name: ai-debugger-ai-engine
     runtime: docker
@@ -40,17 +50,19 @@ services:
     plan: free
     envVars:
       - key: CHROMA_HOST
-        sync: false  # e.g. ai-debugger-chroma-xxxx.onrender.com (no https://)
+        sync: false  # e.g. ai-debugger-chroma.onrender.com (no https://)
       - key: CHROMA_PORT
         value: "443"
       - key: CHROMA_SSL
         value: "true"
       - key: LLM_PROVIDER
-        value: gemini
+        value: openai
       - key: LLM_MODEL
-        value: gemini-1.5-flash
-      - key: GEMINI_API_KEY
-        sync: false
+        value: openai/gpt-3.5-turbo
+      - key: OPENAI_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: OPENAI_API_KEY
+        sync: false  # your OpenRouter key, starts with sk-or-v1-...
 
   # ── Backend API (Express + MongoDB) ───────────────────────
   - type: web
@@ -70,18 +82,6 @@ services:
       - key: GITHUB_CALLBACK_URL
         sync: false  # https://<backend-url>.onrender.com/api/auth/github/callback
       - key: NEXT_PUBLIC_APP_URL
-        sync: false  # https://<frontend-url>.onrender.com
+        sync: false  # https://<your-app>.vercel.app — no trailing slash, must exactly match the Origin header
       - key: AI_ENGINE_URL
         sync: false  # https://<ai-engine-url>.onrender.com
-
-  # ── Frontend (Next.js) ─────────────────────────────────────
-  - type: web
-    name: ai-debugger-frontend
-    runtime: docker
-    rootDir: frontend
-    plan: free
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        sync: false  # https://<backend-url>.onrender.com — baked in at build time
-      - key: NEXT_PUBLIC_APP_URL
-        sync: false  # https://<frontend-url>.onrender.com — baked in at build time

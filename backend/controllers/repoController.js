@@ -96,6 +96,7 @@ exports.indexRepo = async (req, res, next) => {
       repo.fileCount = result.fileCount || 0;
       repo.chunkCount = result.chunkCount || 0;
       repo.clonePath = result.clonePath || '';
+      repo.indexError = undefined;  // clear any stale error from a previous failed attempt
       await repo.save();
     }).catch(async (err) => {
       repo.indexStatus = 'failed';
