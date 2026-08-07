@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import { GitBranch, Zap, Shield, Search, Code2, GitPullRequest, Bug } from 'lucide-react';
+import ServiceWarmup from '@/components/layout/ServiceWarmup';
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0F1219] text-white relative overflow-hidden">
+      {/* Fires background warm-up pings to Render services; renders nothing */}
+      <ServiceWarmup />
       {/* Background ambient light effects */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] opacity-20 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-r from-[#5E5DF0] to-[#8B88FF] blur-[100px] rounded-full mix-blend-screen" />
